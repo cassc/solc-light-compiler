@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import CodeBlock from './code_block';
+import LeftPanel from './left';
+import {  parseAsStdJson, parseAsWrappedJson } from '../utils';
+import {  availableVersions } from '../versions';
+import FileUploader from './file_uploader';
 const _ = require('lodash');
 
 function Home() {
@@ -9,12 +12,19 @@ function Home() {
   const [title, setTitle] = useState(null);
   const [stdInputJson, setStdInputJson] = useState(null);
   const [activeContent, setActiveContent] = useState("");
+  const [activeLanguage, setActiveLanguage] = useState(null);
   const [output, setOutput] = useState(null);
+  const [compiling, setCompiling] = useState(false);
+  const [isWrappedJson, setIsWrappedJson] = useState(false);
+  const [compilerVersion, setCompilerVersion] = useState(null);
+  const [prettyInput, setPrettyInput] = useState(null);
 
   function viewFile(source){
     return () => {
       const content = stdInputJson?.sources[source]?.content || "";
+      const language = source.split('.').pop();
       setActiveContent(content);
+      setActiveLanguage(language);
     }
   }
 
@@ -35,24 +45,31 @@ function Home() {
     });
   }
 
-
   async function handleCompile(_event) {
-    if (!stdInputJson || !jsonData?.CompilerVersion) {
+    if (!stdInputJson) {
       console.error('Standard input JSON is not available');
       return;
     }
 
+    if (!compilerVersion){
+      console.error('Compiler version is not available');
+      return;
+    }
+
     const worker = new Worker('worker.bundle.js');
+    let compileOutput = null;
 
     try {
+      setCompiling(true);
+      setOutput(null);
       // Load the compiler
       await postMessageToWorker(worker, {
         command: 'loadCompiler',
-        version: jsonData.CompilerVersion
+        version: compilerVersion
       });
 
       // Compile the standard input JSON
-      const compileOutput = await postMessageToWorker(worker, {
+      compileOutput = await postMessageToWorker(worker, {
         command: 'compile',
         input: stdInputJson
       });
@@ -61,8 +78,10 @@ function Home() {
       console.log('Compilation output:', compileOutput);
       if (compileOutput?.type === 'compiled') {
         console.log('Compilation successful:', compileOutput.output);
-        setActiveContent(compileOutput.output);
-        const output = JSON.parse(compileOutput.compiled);
+        const output = compileOutput.output && JSON.stringify(JSON.parse(compileOutput.output), null, 2);
+        setOutput(output);
+        setActiveContent(output || "Missing output!");
+        setActiveLanguage("json");
       } else {
         console.error('Compilation error:', compileOutput?.error || "unknown error");
       }
@@ -70,32 +89,48 @@ function Home() {
       // Handle any errors
       console.error('Compilation error:', error);
     } finally {
+      setCompiling(false);
       // Terminate the worker when done
       worker.terminate();
     }
+
+    // const output = compileOutput && JSON.parse(compileOutput.compiled);
   }
 
-  function handleFileChange(event) {
-    const file = event.target.files[0];
+
+  async function handleFileChange(file) {
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-          const title = data?.ContractName;
-          let sourceCode = data?.SourceCode;
-          sourceCode = sourceCode.replace(/^\{\{/, "{").replace(/}}$/, "}");
-          const stdInputJson = JSON.parse(sourceCode);
+      {
+        setCompilerVersion(null);
+        setOutput(null);
+        setStdInputJson(null);
+        let {success, stdInputJson, title, data, prettyInput } = await parseAsWrappedJson(file);
+        if (success){
           setJsonData(data);
           setTitle(title);
+          setCompilerVersion(data?.CompilerVersion);
           setStdInputJson(stdInputJson);
-        } catch (error) {
-          console.error("Error parsing JSON:", error);
-          alert("Invalid JSON file");
-          setTitle(null);
+          setActiveContent(prettyInput);
+          setActiveLanguage("json");
+          setPrettyInput(prettyInput);
+          setIsWrappedJson(true);
+          return;
         }
-      };
-      reader.readAsText(file);
+      }
+
+      {
+        let {success, stdInputJson, prettyInput } = await parseAsStdJson(file);
+        if (success){
+          setIsWrappedJson(false);
+          setJsonData(stdInputJson);
+          setStdInputJson(stdInputJson);
+          setActiveContent(prettyInput);
+          setPrettyInput(prettyInput);
+          setActiveLanguage("json");
+          setCompilerVersion(null);
+          return;
+        }
+      }
     }
   }
 
@@ -107,13 +142,14 @@ function Home() {
             <span className="font-bold">
               { title || "Please select a file" }
             </span>
-            {
-              jsonData?.CompilerVersion && (
-                <span className="mx-3">
-                  🛠️ { jsonData?.CompilerVersion || "" }
-                </span>
-              )
-            }
+            <span className="mx-3">
+              🛠️
+              <select name="compilerVersion" id="compilerVersion"
+                      onChange={(e)=>setCompilerVersion(e.target.value)} value={compilerVersion || ""}>
+                <option value="">Please select</option>
+                {availableVersions.map(version => (<option key={version} value={version}> {version} </option>))}
+              </select>
+            </span>
             {
               jsonData?.Runs && (
                 <span className={`mx-3 ${jsonData?.OptimizationUsed === "0" ? "text-gray-500" : "text-black"}`}>
@@ -123,38 +159,37 @@ function Home() {
             }
           </div>
           <div className="p-2">
-            <label className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 cursor-pointer">
-              Import
-              <input type="file" accept=".json" onChange={handleFileChange}
-                     style={{ display: 'none' }}
-              />
-            </label>
+            <FileUploader onFileSelect={handleFileChange} label="Import"/>
             { jsonData && (
-                <label className="ml-2 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 cursor-pointer" onClick={handleCompile}>
-                  Compile
-                </label>)
+              <label
+                className={`ml-2 px-4 py-2 rounded cursor-pointer ${
+    compilerVersion ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+  }`}
+                onClick={compilerVersion ? handleCompile : null}
+              >
+                {compiling ? (
+                  <span className="animate-pulse">Compiling ...</span>
+                ) : (
+                  <span>Compile</span>
+                )}
+              </label>)
             }
           </div>
         </div>
-        <div className="w-full grid grid-cols-10 gap-2">
-          <div className="w-full col-span-2 p-2 bg-blue-50 hover:z-0">
-            <h3 className="text-xl hover:z-0 hover:overflow-visible">File tree:</h3>
-            { _.map(stdInputJson?.sources, (val, source) => (
-              <div key={source}>
-                <code className="hover:p-1 truncate hover:z-0 hover:overflow-visible hover:bg-white cursor-pointer" onClick={viewFile(source)}> { source } </code>
-              </div>
-            ))
-            }
-          </div>
-          <div className="w-full col-span-8 p-2 bg-green-100">
-            <CodeBlock language="solidity" >
-              {activeContent}
-            </CodeBlock>
-          </div>
-        </div>
-        <div className="absolute w-full p-2 border-white border-b-2 bottom-0 bg-black text-white">
-          Footer
-        </div>
+        <LeftPanel
+          isWrappedJson={isWrappedJson}
+          prettyInput={prettyInput}
+          stdInputJson={stdInputJson}
+          viewFile={viewFile}
+          compilationOutputString ={output}
+          activeContent={activeContent}
+          activeLanguage={activeLanguage}
+          setActiveContent={setActiveContent}
+          setActiveLanguage={setActiveLanguage}
+        />
+        {/* <div className="absolute w-full p-2 border-white border-b-2 bottom-0 bg-black text-white"> */}
+        {/*   Footer */}
+        {/* </div> */}
       </div>
     </main>
   )

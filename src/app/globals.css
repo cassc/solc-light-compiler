@@ -25,3 +25,10 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.truncate-left {
+  direction: rtl; /* Right-to-left text direction */
+  text-overflow: ellipsis; /* Ellipsis for overflowed content */
+  overflow: hidden; /* Hide overflow */
+  white-space: nowrap; /* No wrapping */
+}

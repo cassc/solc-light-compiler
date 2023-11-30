@@ -1,27 +1,29 @@
+'use client'
+
 import React, { useEffect, useRef } from 'react';
-import 'highlight.js/styles/default.css';  // Or another theme of your choice
+import Editor from '@monaco-editor/react';
 
-const hljs = require('highlight.js');
-const hljsDefineSolidity = require('highlightjs-solidity');
-hljsDefineSolidity(hljs);
+const CodeEditor = ({ code, language, handleEditorChange }) => {
+  const editorRef = useRef(null);
 
-const CodeBlock = ({ language, children }) => {
-    const codeRef = useRef(null);
+  const options = {
+    selectOnLineNumbers: true,
+    readOnly: true,
+    language: language,
+  };
 
-    useEffect(() => {
-      if (codeRef.current) {
-        codeRef.current.removeAttribute('data-highlighted');
-        hljs.highlightElement(codeRef.current);
-      }
-    }, [children]); // Dependency array includes 'children' to re-highlight when content changes
-
-    return (
-        <pre>
-            <code ref={codeRef} className={`language-${language}`}>
-                {children}
-            </code>
-        </pre>
-    );
+  return (
+    <Editor
+    defaultLanguage="sol"
+    width="100%" // Adjust width as needed
+    height="80vh"
+    language={language}
+    theme="vs-dark" // or "vs-light"
+    value={code}
+    options={options}
+    onChange={handleEditorChange}
+    />
+  );
 };
 
-export default CodeBlock;
+export default CodeEditor;
