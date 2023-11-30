@@ -18190,7 +18190,7 @@ self.addEventListener('message', function (e) {
       importScripts(url);
       compiler = (0, _wrapper["default"])(self.Module);
       console.log("compiler", compiler);
-    } catch (e) {
+    } catch (error) {
       console.error("Error in importing script or initializing compiler:", error, "from url:", url);
     }
     self.postMessage({
