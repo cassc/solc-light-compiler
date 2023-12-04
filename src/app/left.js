@@ -20,7 +20,15 @@ const LeftPanel = ({ compilationOutputString, stdInputJson, viewFile, activeCont
     </div>))
     }
     {
-      isWrappedJson && prettyInput && (
+      stdInputJson?.SourceCode && (
+        <div className="w-full mt-4">
+          <label className="w-full bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 cursor-pointer" onClick={(_) => setActiveContentWithLanguage(stdInputJson.SourceCode, "sol")}>
+            Source Code
+          </label>
+        </div>)
+    }
+    {
+      prettyInput && (
         <div className="w-full mt-4">
           <label className="w-full bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 cursor-pointer" onClick={(_) => setActiveContentWithLanguage(prettyInput, "json")}>
             Input JSON
@@ -28,7 +36,7 @@ const LeftPanel = ({ compilationOutputString, stdInputJson, viewFile, activeCont
         </div>)
     }
     {
-      stdInputJson && (
+      stdInputJson?.sources  && (
         <div className="w-full mt-4">
           <label className="w-full bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 cursor-pointer" onClick={(_) => setActiveContentWithLanguage(JSON.stringify(stdInputJson, null, 2), "json")}>
             Standard Input JSON

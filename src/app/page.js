@@ -127,7 +127,7 @@ function Home() {
           setActiveContent(prettyInput);
           setPrettyInput(prettyInput);
           setActiveLanguage("json");
-          setCompilerVersion(null);
+          setCompilerVersion(stdInputJson?.CompilerVersion);
           return;
         }
       }
