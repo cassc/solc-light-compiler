@@ -1,23 +1,25 @@
 'use client'
 
-import { useState } from 'react';
 import MainPanel from './main';
 import {  parseAsStdJson, parseAsWrappedJson } from '../utils';
 import {  availableVersions } from '../versions';
+
 import FileUploader from './file_uploader';
 const _ = require('lodash');
+import { useAtom } from 'jotai'
+import  * as store from '../model/store';
 
 function Home() {
-  const [jsonData, setJsonData] = useState(null);
-  const [title, setTitle] = useState(null);
-  const [stdInputJson, setStdInputJson] = useState(null);
-  const [activeContent, setActiveContent] = useState("");
-  const [activeLanguage, setActiveLanguage] = useState(null);
-  const [output, setOutput] = useState(null);
-  const [compiling, setCompiling] = useState(false);
-  const [isWrappedJson, setIsWrappedJson] = useState(false);
-  const [compilerVersion, setCompilerVersion] = useState(null);
-  const [prettyInput, setPrettyInput] = useState(null);
+  const [jsonData, setJsonData] = useAtom(store.inputJsonAtom);
+  const [title, setTitle] = useAtom(store.titleAtom);
+  const [stdInputJson, setStdInputJson] = useAtom(store.standardInputJsonAtom);
+  const [activeContent, setActiveContent] = useAtom(store.activeContentAtom);
+  const [activeLanguage, setActiveLanguage] = useAtom(store.activeLanguageAtom);
+  const [output, setOutput] = useAtom(store.compilationOutputAtom);
+  const [compiling, setCompiling] = useAtom(store.isCompilingAtom);
+  const [isWrappedJson, setIsWrappedJson] = useAtom(store.isWrappedJsonAtom);
+  const [compilerVersion, setCompilerVersion] = useAtom(store.compilerVersionAtom);
+  const [prettyInput, setPrettyInput] = useAtom(store.inputJsonAtom);
 
   function viewFile(source){
     return () => {
