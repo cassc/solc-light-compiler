@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import LeftPanel from './left';
+import MainPanel from './main';
 import {  parseAsStdJson, parseAsWrappedJson } from '../utils';
 import {  availableVersions } from '../versions';
 import FileUploader from './file_uploader';
@@ -176,7 +176,7 @@ function Home() {
             }
           </div>
         </div>
-        <LeftPanel
+        <MainPanel
           isWrappedJson={isWrappedJson}
           prettyInput={prettyInput}
           stdInputJson={stdInputJson}

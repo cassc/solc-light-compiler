@@ -3,7 +3,7 @@
 import CodeBlock from './code_block';
 const _ = require('lodash');
 
-const LeftPanel = ({ compilationOutputString, stdInputJson, viewFile, activeContent, setActiveContent, prettyInput, isWrappedJson, setActiveLanguage }) => {
+const MainPanel = ({ compilationOutputString, stdInputJson, viewFile, activeContent, setActiveContent, prettyInput, isWrappedJson, setActiveLanguage }) => {
 
   function setActiveContentWithLanguage(content, language){
     setActiveContent(content);
@@ -59,4 +59,4 @@ const LeftPanel = ({ compilationOutputString, stdInputJson, viewFile, activeCont
   );
 }
 
-export default LeftPanel;
+export default MainPanel;
