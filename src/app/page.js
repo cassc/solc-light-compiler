@@ -19,16 +19,9 @@ function Home() {
   const [compiling, setCompiling] = useAtom(store.isCompilingAtom);
   const [isWrappedJson, setIsWrappedJson] = useAtom(store.isWrappedJsonAtom);
   const [compilerVersion, setCompilerVersion] = useAtom(store.compilerVersionAtom);
-  const [prettyInput, setPrettyInput] = useAtom(store.inputJsonAtom);
-
-  function viewFile(source){
-    return () => {
-      const content = stdInputJson?.sources[source]?.content || "";
-      const language = source.split('.').pop();
-      setActiveContent(content);
-      setActiveLanguage(language);
-    }
-  }
+  const [prettyInput, setPrettyInput] = useAtom(store.prettyInputAtom);
+  const [activeContentReadOnly, setActiveContentReadOnly] = useAtom(store.activeContentReadOnlyAtom);
+  const [activeContentPath, setActiveContentPath] = useAtom(store.activeContentPathAtom);
 
   function postMessageToWorker(worker, message) {
     return new Promise((resolve, reject) => {
@@ -115,6 +108,7 @@ function Home() {
           setActiveContent(prettyInput);
           setActiveLanguage("json");
           setPrettyInput(prettyInput);
+          setActiveContentReadOnly(true);
           setIsWrappedJson(true);
           return;
         }
@@ -129,6 +123,7 @@ function Home() {
           setActiveContent(prettyInput);
           setPrettyInput(prettyInput);
           setActiveLanguage("json");
+          setActiveContentReadOnly(true);
           setCompilerVersion(stdInputJson?.CompilerVersion);
           return;
         }
@@ -178,17 +173,7 @@ function Home() {
             }
           </div>
         </div>
-        <MainPanel
-          isWrappedJson={isWrappedJson}
-          prettyInput={prettyInput}
-          stdInputJson={stdInputJson}
-          viewFile={viewFile}
-          compilationOutputString ={output}
-          activeContent={activeContent}
-          activeLanguage={activeLanguage}
-          setActiveContent={setActiveContent}
-          setActiveLanguage={setActiveLanguage}
-        />
+        <MainPanel />
         {/* <div className="absolute w-full p-2 border-white border-b-2 bottom-0 bg-black text-white"> */}
         {/*   Footer */}
         {/* </div> */}

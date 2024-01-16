@@ -37,6 +37,22 @@ const parseAsStdJson = async (file) => {
   }
 }
 
+// TODO
+// ref libs/remix-url-resolver/src/resolve.ts
+const resolveNpmImport = (url)=> {
+  // convert  "@openzeppelin/contracts/utils/math/Math.sol";
+  // =>
+  // https://unpkg.com/@openzeppelin/contracts/utils/math/Math.sol or
+  // https://cdn.jsdelivr.net/npm/@openzeppelin/contracts/utils/math/Math.sol
+
+  // "@openzeppelin/contacts@5.0.1/token/ERC20/ERC20.sol";
+  // =>
+  // https://cdn.jsdelivr.net/npm/@openzeppelin/contacts@5.0.1/token/ERC20/ERC20.sol
+  // https://unpkg.com/@openzeppelin/contacts@5.0.1/token/ERC20/ERC20.sol
+
+};
+
+
 export {
   parseAsStdJson,
   parseAsWrappedJson

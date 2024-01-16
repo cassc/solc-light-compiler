@@ -4,18 +4,19 @@ import { atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 
 const baseAtom = atom({
-  activeContent:'',
-  activeContentPath: '',
-  activeLanguage: 'solidity',
-  inputJson: {},
-  standardInputJson: {},
-  compilationOutput: {},
-  title: "",
+  activeContent:'', // current text in the editor
+  activeContentPath: [], // path in standardInputJson
+  activeLanguage: 'solidity', // current language for syntax highlighting
+  activeContentReadOnly: false, // whether the editor is read only
+  standardInputJson: {}, // standard input json (optional)
+  inputJson: {}, // current input json (optional)
+  prettyInput: "", // current input json pretty printed (optional)
+  compilationOutput: "",
+  title: "", // title of the main contract (optioal)
   isCompiling: false,
   isWrappedJson: false,
   compilerVersion: "0.8.0",
 });
-
 
 const activeContentAtom = focusAtom(baseAtom, (optic) => optic.prop('activeContent'));
 const activeContentPathAtom = focusAtom(baseAtom, (optic) => optic.prop('activeContentPath'));
@@ -27,6 +28,10 @@ const titleAtom = focusAtom(baseAtom, (optic) => optic.prop('title'));
 const isCompilingAtom = focusAtom(baseAtom, (optic) => optic.prop('isCompiling'));
 const isWrappedJsonAtom = focusAtom(baseAtom, (optic) => optic.prop('isWrappedJson'));
 const compilerVersionAtom = focusAtom(baseAtom, (optic) => optic.prop('compilerVersion'));
+const activeContentReadOnlyAtom = focusAtom(baseAtom, (optic) => optic.prop('activeContentReadOnly'));
+const prettyInputAtom = focusAtom(baseAtom, (optic) => optic.prop('prettyInput'));
+
+
 
 export {
   activeContentAtom,
@@ -39,4 +44,6 @@ export {
   isCompilingAtom,
   isWrappedJsonAtom,
   compilerVersionAtom,
+  activeContentReadOnlyAtom,
+  prettyInputAtom,
 }
