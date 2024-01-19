@@ -194,7 +194,7 @@ const MainPanel = ({  }) => {
     }
     </div>
     <div className="w-full col-span-8 p-2 bg-green-100">
-      <CodeBlock language="solidity" code={activeContent} readOnly={activeContentReadOnly} onChange={maybeSaveChanges} />
+      <CodeBlock language={activeLanguage} code={activeContent} readOnly={activeContentReadOnly} onChange={maybeSaveChanges} />
     </div>
     </div>
   );

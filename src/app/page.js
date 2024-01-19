@@ -142,16 +142,16 @@ function Home() {
       }
 
       { // Standard json
-        let {success, stdInputJson, prettyInput } = await parseAsStdJson(file);
+        let {success, stdInputJson, data, prettyInput } = await parseAsStdJson(file);
         if (success){
           setIsWrappedJson(false);
-          setJsonData(stdInputJson);
+          setJsonData(data);
           setStdInputJson(stdInputJson);
           setActiveContent(prettyInput);
           setPrettyInput(prettyInput);
           setActiveLanguage("json");
           setActiveContentReadOnly(true);
-          setCompilerVersion(stdInputJson?.CompilerVersion);
+          setCompilerVersion(data?.CompilerVersion);
           return;
         }
       }

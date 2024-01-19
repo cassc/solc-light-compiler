@@ -44,12 +44,12 @@ const parseAsWrappedJson = async (file) => {
 const parseAsStdJson = async (file) => {
   try {
     const fileContent = await readFile(file);
-    const json = JSON.parse(fileContent);
-    const isStdJson = json?.sources && json?.language;
-    let stdInputJson = json;
+    const data = JSON.parse(fileContent);
+    const isStdJson = data?.sources && data?.language;
+    let stdInputJson = data;
     if (!isStdJson){
       stdInputJson = {
-        sources: {"source.sol": {content: json.SourceCode || ""}},
+        sources: {"source.sol": {content: data.SourceCode || ""}},
         language: "Solidity",
         settings: {
           outputSelection : {
@@ -60,9 +60,9 @@ const parseAsStdJson = async (file) => {
         }
       };
     }
-    const prettyInput = JSON.stringify(json, null, 2);
+    const prettyInput = JSON.stringify(data, null, 2);
 
-    return { stdInputJson, prettyInput, success: true };
+    return { data, stdInputJson, prettyInput, success: true };
   } catch (error) {
     console.error("Error parsing std input JSON:", error);
     return { success: false, error };
