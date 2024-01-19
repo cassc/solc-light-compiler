@@ -35,7 +35,6 @@ const MainPanel = ({  }) => {
   const [activeContentReadOnly, setActiveContentReadOnly] = useAtom(store.activeContentReadOnlyAtom);
   const [compilerVersion, setCompilerVersion] = useAtom(store.compilerVersionAtom);
   const [sources, setSources] = useAtom(store.sourcesAtom);
-  const [internalChange, setInternalChange] = useAtom(store.internalChangeAtom);
 
 
   async function reloadContext(content, sources, siblingUri=null){
@@ -88,8 +87,9 @@ const MainPanel = ({  }) => {
     return sources;
   }
 
-  function maybeSaveChanges(content){
-    if (internalChange){
+  function maybeSaveChanges(content, e){
+    if (e.isFlush){
+      console.log("Ignore programmatically changing text");
       return;
     }
     console.log(`Saving ${content.substring(0, 10)}... to ${activeContentPath}`)
@@ -121,15 +121,10 @@ const MainPanel = ({  }) => {
   }
 
   function setActiveView({content, language, readOnly, path}){
-    try{
-      setInternalChange(true);
-      setActiveLanguage(language);
-      setActiveContentReadOnly(readOnly);
-      setActiveContentPath(path);
-      setActiveContent(content);
-    }finally{
-      setInternalChange(false);
-    }
+    setActiveLanguage(language);
+    setActiveContentReadOnly(readOnly);
+    setActiveContentPath(path);
+    setActiveContent(content);
   }
 
   function viewFile(source){

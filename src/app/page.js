@@ -26,7 +26,6 @@ function Home() {
   const [activeContentReadOnly, setActiveContentReadOnly] = useAtom(store.activeContentReadOnlyAtom);
   const [activeContentPath, setActiveContentPath] = useAtom(store.activeContentPathAtom);
   const [sources, setSources] = useAtom(store.sourcesAtom);
-  const [internalChange, setInternalChange] = useAtom(store.internalChangeAtom);
 
   function postMessageToWorker(worker, message) {
     return new Promise((resolve, reject) => {
@@ -46,58 +45,54 @@ function Home() {
   }
 
   async function handleCompile(_event) {
-    try{
-      setInternalChange(true);
-      if (!stdInputJson) {
-        console.error('Standard input JSON is not available');
-        return;
-      }
-
-      if (!compilerVersion){
-        console.error('Compiler version is not available');
-        return;
-      }
-
-      const worker = new Worker('worker.bundle.js');
-      let compileOutput = null;
-
-      try {
-        setCompiling(true);
-        setOutput(null);
-        // Load the compiler
-        await postMessageToWorker(worker, {
-          command: 'loadCompiler',
-          version: compilerVersion
-        });
-
-        // Compile the standard input JSON
-        compileOutput = await postMessageToWorker(worker, {
-          command: 'compile',
-          input: stdInputJson
-        });
-
-        // Handle the compilation output
-        console.log('Compilation output:', compileOutput);
-        if (compileOutput?.type === 'compiled') {
-          console.log('Compilation successful:', compileOutput.output);
-          const output = compileOutput.output && JSON.stringify(JSON.parse(compileOutput.output), null, 2);
-          setOutput(output);
-          setActiveContent(output || "Missing output!");
-          setActiveLanguage("json");
-        } else {
-          console.error('Compilation error:', compileOutput?.error || "unknown error");
-        }
-      } catch (error) {
-        // Handle any errors
-        console.error('Compilation error:', error);
-      } finally {
-        setCompiling(false);
-        // Terminate the worker when done
-        worker.terminate();
-      }
-    }finally{
-      setInternalChange(false);
+    if (!stdInputJson) {
+      console.error('Standard input JSON is not available');
+      return;
     }
+
+    if (!compilerVersion){
+      console.error('Compiler version is not available');
+      return;
+    }
+
+    const worker = new Worker('worker.bundle.js');
+    let compileOutput = null;
+
+    try {
+      setCompiling(true);
+      setOutput(null);
+      // Load the compiler
+      await postMessageToWorker(worker, {
+        command: 'loadCompiler',
+        version: compilerVersion
+      });
+
+      // Compile the standard input JSON
+      compileOutput = await postMessageToWorker(worker, {
+        command: 'compile',
+        input: stdInputJson
+      });
+
+      // Handle the compilation output
+      console.log('Compilation output:', compileOutput);
+      if (compileOutput?.type === 'compiled') {
+        console.log('Compilation successful:', compileOutput.output);
+        const output = compileOutput.output && JSON.stringify(JSON.parse(compileOutput.output), null, 2);
+        setOutput(output);
+        setActiveContent(output || "Missing output!");
+        setActiveLanguage("json");
+      } else {
+        console.error('Compilation error:', compileOutput?.error || "unknown error");
+      }
+    } catch (error) {
+      // Handle any errors
+      console.error('Compilation error:', error);
+    } finally {
+      setCompiling(false);
+      // Terminate the worker when done
+      worker.terminate();
+    }
+
     // const output = compileOutput && JSON.parse(compileOutput.compiled);
   }
 
@@ -126,45 +121,40 @@ function Home() {
   }
 
   async function handleFileChange(file) {
-    try{
-      setInternalChange(true);
-      if (file) {
-        { // json as string (might not be standard input json) and wrapped inside another input json
-          setCompilerVersion(null);
-          setOutput(null);
-          setStdInputJson({sources: {}});
-          let {success, stdInputJson, title, data, prettyInput } = await parseAsWrappedJson(file);
-          if (success){
-            setJsonData(data);
-            setTitle(title);
-            setCompilerVersion(data?.CompilerVersion);
-            setStdInputJson(stdInputJson);
-            setActiveContent(prettyInput);
-            setActiveLanguage("json");
-            setPrettyInput(prettyInput);
-            setActiveContentReadOnly(true);
-            setIsWrappedJson(true);
-            return;
-          }
-        }
-
-        { // Standard json
-          let {success, stdInputJson, prettyInput } = await parseAsStdJson(file);
-          if (success){
-            setIsWrappedJson(false);
-            setJsonData(stdInputJson);
-            setStdInputJson(stdInputJson);
-            setActiveContent(prettyInput);
-            setPrettyInput(prettyInput);
-            setActiveLanguage("json");
-            setActiveContentReadOnly(true);
-            setCompilerVersion(stdInputJson?.CompilerVersion);
-            return;
-          }
+    if (file) {
+      { // json as string (might not be standard input json) and wrapped inside another input json
+        setCompilerVersion(null);
+        setOutput(null);
+        setStdInputJson({sources: {}});
+        let {success, stdInputJson, title, data, prettyInput } = await parseAsWrappedJson(file);
+        if (success){
+          setJsonData(data);
+          setTitle(title);
+          setCompilerVersion(data?.CompilerVersion);
+          setStdInputJson(stdInputJson);
+          setActiveContent(prettyInput);
+          setActiveLanguage("json");
+          setPrettyInput(prettyInput);
+          setActiveContentReadOnly(true);
+          setIsWrappedJson(true);
+          return;
         }
       }
-    }finally{
-      setInternalChange(false);
+
+      { // Standard json
+        let {success, stdInputJson, prettyInput } = await parseAsStdJson(file);
+        if (success){
+          setIsWrappedJson(false);
+          setJsonData(stdInputJson);
+          setStdInputJson(stdInputJson);
+          setActiveContent(prettyInput);
+          setPrettyInput(prettyInput);
+          setActiveLanguage("json");
+          setActiveContentReadOnly(true);
+          setCompilerVersion(stdInputJson?.CompilerVersion);
+          return;
+        }
+      }
     }
   }
 

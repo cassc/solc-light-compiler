@@ -4,7 +4,6 @@ import { atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 
 const baseAtom = atom({
-  internalChange: false,
   activeContent:'', // current text in the editor
   activeContentPath: [], // path in standardInputJson
   activeLanguage: 'solidity', // current language for syntax highlighting
@@ -42,7 +41,6 @@ const compilerVersionAtom = focusAtom(baseAtom, (optic) => optic.prop('compilerV
 const activeContentReadOnlyAtom = focusAtom(baseAtom, (optic) => optic.prop('activeContentReadOnly'));
 const prettyInputAtom = focusAtom(baseAtom, (optic) => optic.prop('prettyInput'));
 const sourcesAtom = focusAtom(standardInputJsonAtom, (optic) => optic.prop('sources'));
-const internalChangeAtom = focusAtom(baseAtom, (optic) => optic.prop('internalChange'));
 
 export {
   activeContentAtom,
@@ -58,5 +56,4 @@ export {
   activeContentReadOnlyAtom,
   prettyInputAtom,
   sourcesAtom,
-  internalChangeAtom,
 }
