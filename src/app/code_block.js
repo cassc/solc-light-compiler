@@ -14,7 +14,7 @@ const CodeEditor = ({ code, language, onChange, readOnly }) => {
     <Editor
       defaultLanguage="sol"
       width="100%" // Adjust width as needed
-      height="80vh"
+      height="100vh"
       language={language}
       theme="vs-dark" // or "vs-light"
       value={code}

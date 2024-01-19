@@ -4,11 +4,22 @@ import { atom } from 'jotai'
 import { focusAtom } from 'jotai-optics'
 
 const baseAtom = atom({
+  internalChange: false,
   activeContent:'', // current text in the editor
   activeContentPath: [], // path in standardInputJson
   activeLanguage: 'solidity', // current language for syntax highlighting
   activeContentReadOnly: false, // whether the editor is read only
-  standardInputJson: {}, // standard input json (optional)
+  standardInputJson: {
+    sources: {"source.sol": {content: ""}},
+    language: "Solidity",
+    settings: {
+      outputSelection : {
+        '*': {
+          '*': [ '*' ]
+        }
+      }
+    },
+  }, // standard input json (optional)
   inputJson: {}, // current input json (optional)
   prettyInput: "", // current input json pretty printed (optional)
   compilationOutput: "",
@@ -30,8 +41,8 @@ const isWrappedJsonAtom = focusAtom(baseAtom, (optic) => optic.prop('isWrappedJs
 const compilerVersionAtom = focusAtom(baseAtom, (optic) => optic.prop('compilerVersion'));
 const activeContentReadOnlyAtom = focusAtom(baseAtom, (optic) => optic.prop('activeContentReadOnly'));
 const prettyInputAtom = focusAtom(baseAtom, (optic) => optic.prop('prettyInput'));
-
-
+const sourcesAtom = focusAtom(standardInputJsonAtom, (optic) => optic.prop('sources'));
+const internalChangeAtom = focusAtom(baseAtom, (optic) => optic.prop('internalChange'));
 
 export {
   activeContentAtom,
@@ -46,4 +57,6 @@ export {
   compilerVersionAtom,
   activeContentReadOnlyAtom,
   prettyInputAtom,
+  sourcesAtom,
+  internalChangeAtom,
 }

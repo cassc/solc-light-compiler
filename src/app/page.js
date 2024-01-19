@@ -1,11 +1,14 @@
 'use client'
 
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+
 import MainPanel from './main';
 import {  parseAsStdJson, parseAsWrappedJson } from '../utils';
 import {  availableVersions } from '../versions';
 
 import FileUploader from './file_uploader';
-const _ = require('lodash');
+const lodash = require('lodash');
 import { useAtom } from 'jotai'
 import  * as store from '../model/store';
 
@@ -22,6 +25,8 @@ function Home() {
   const [prettyInput, setPrettyInput] = useAtom(store.prettyInputAtom);
   const [activeContentReadOnly, setActiveContentReadOnly] = useAtom(store.activeContentReadOnlyAtom);
   const [activeContentPath, setActiveContentPath] = useAtom(store.activeContentPathAtom);
+  const [sources, setSources] = useAtom(store.sourcesAtom);
+  const [internalChange, setInternalChange] = useAtom(store.internalChangeAtom);
 
   function postMessageToWorker(worker, message) {
     return new Promise((resolve, reject) => {
@@ -92,42 +97,70 @@ function Home() {
     // const output = compileOutput && JSON.parse(compileOutput.compiled);
   }
 
+  async function handleDownload(_){
+    const zip = new JSZip();
+    const sourceCode =  stdInputJson?.SourceCode; // flattened single file source code
+
+    const root = title ? `${title}/` : "";
+
+    if (sourceCode) {
+      zip.file(`${root}${title || "source"}.sol`, sourceCode);
+    }
+
+    if (sources) {
+      lodash.forEach(sources, ({content}, path) => {
+        zip.file(`${root}${path}`, content);
+      });
+    }
+
+    try {
+      const blob = await zip.generateAsync({ type: 'blob' });
+      saveAs(blob, `${title || "sources"}.zip`);
+    } catch (error) {
+      alert(`Error creating ZIP file: ${error}`);
+    }
+  }
 
   async function handleFileChange(file) {
-    if (file) {
-      {
-        setCompilerVersion(null);
-        setOutput(null);
-        setStdInputJson(null);
-        let {success, stdInputJson, title, data, prettyInput } = await parseAsWrappedJson(file);
-        if (success){
-          setJsonData(data);
-          setTitle(title);
-          setCompilerVersion(data?.CompilerVersion);
-          setStdInputJson(stdInputJson);
-          setActiveContent(prettyInput);
-          setActiveLanguage("json");
-          setPrettyInput(prettyInput);
-          setActiveContentReadOnly(true);
-          setIsWrappedJson(true);
-          return;
+    try{
+      setInternalChange(true);
+      if (file) {
+        { // json as string (might not be standard input json) and wrapped inside another input json
+          setCompilerVersion(null);
+          setOutput(null);
+          setStdInputJson({sources: {}});
+          let {success, stdInputJson, title, data, prettyInput } = await parseAsWrappedJson(file);
+          if (success){
+            setJsonData(data);
+            setTitle(title);
+            setCompilerVersion(data?.CompilerVersion);
+            setStdInputJson(stdInputJson);
+            setActiveContent(prettyInput);
+            setActiveLanguage("json");
+            setPrettyInput(prettyInput);
+            setActiveContentReadOnly(true);
+            setIsWrappedJson(true);
+            return;
+          }
         }
-      }
 
-      {
-        let {success, stdInputJson, prettyInput } = await parseAsStdJson(file);
-        if (success){
-          setIsWrappedJson(false);
-          setJsonData(stdInputJson);
-          setStdInputJson(stdInputJson);
-          setActiveContent(prettyInput);
-          setPrettyInput(prettyInput);
-          setActiveLanguage("json");
-          setActiveContentReadOnly(true);
-          setCompilerVersion(stdInputJson?.CompilerVersion);
-          return;
+        { // Standard json
+          let {success, stdInputJson, prettyInput } = await parseAsStdJson(file);
+          if (success){
+            setIsWrappedJson(false);
+            setJsonData(stdInputJson);
+            setStdInputJson(stdInputJson);
+            setActiveContent(prettyInput);
+            setPrettyInput(prettyInput);
+            setActiveLanguage("json");
+            setActiveContentReadOnly(true);
+            setCompilerVersion(stdInputJson?.CompilerVersion);
+            return;
+          }
         }
       }
+    }finally{
+      setInternalChange(false);
     }
   }
 
@@ -157,26 +190,33 @@ function Home() {
           </div>
           <div className="p-2">
             <FileUploader onFileSelect={handleFileChange} label="Import"/>
-            { jsonData && (
-              <label
-                className={`ml-2 px-4 py-2 rounded cursor-pointer ${
+            { (!lodash.isEmpty(jsonData) || !lodash.isEmpty(stdInputJson)) && (
+                <label
+                  className={`ml-2 px-4 py-2 rounded cursor-pointer ${
     compilerVersion ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-gray-500 text-gray-300 cursor-not-allowed'
   }`}
-                onClick={compilerVersion ? handleCompile : null}
-              >
-                {compiling ? (
-                  <span className="animate-pulse">Compiling ...</span>
-                ) : (
-                  <span>Compile</span>
-                )}
-              </label>)
+                  onClick={handleDownload} > Download </label>)
+            }
+            { compilerVersion && !lodash.isEmpty(stdInputJson) && (
+                <label
+                  className={`ml-2 px-4 py-2 rounded cursor-pointer ${
+    compilerVersion ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+  }`}
+                  onClick={compilerVersion ? handleCompile : null}
+                >
+                  {compiling ? (
+                    <span className="animate-pulse">Compiling ...</span>
+                  ) : (
+                    <span>Compile</span>
+                  )}
+                </label>)
             }
           </div>
         </div>
         <MainPanel />
         {/* <div className="absolute w-full p-2 border-white border-b-2 bottom-0 bg-black text-white"> */}
-        {/*   Footer */}
-        {/* </div> */}
+          {/*   Footer */}
+          {/* </div> */}
       </div>
     </main>
   )
