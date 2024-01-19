@@ -2,7 +2,8 @@
 
 import CodeBlock from './code_block';
 const _ = require('lodash');
-import { useAtom } from 'jotai'
+import { useAtom } from 'jotai';
+import { useRef } from 'react';
 import  * as store from '../model/store';
 import {  availableVersions } from '../versions';
 import { resolveNpmImport } from '@/utils';
@@ -120,15 +121,15 @@ const MainPanel = ({  }) => {
   }
 
   function setActiveView({content, language, readOnly, path}){
-    setInternalChange(true);
     try{
+      setInternalChange(true);
       setActiveLanguage(language);
       setActiveContentReadOnly(readOnly);
       setActiveContentPath(path);
       setActiveContent(content);
     }finally{
+      setInternalChange(false);
     }
-    setInternalChange(false);
   }
 
   function viewFile(source){

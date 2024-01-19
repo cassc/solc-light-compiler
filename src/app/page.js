@@ -46,54 +46,58 @@ function Home() {
   }
 
   async function handleCompile(_event) {
-    if (!stdInputJson) {
-      console.error('Standard input JSON is not available');
-      return;
-    }
-
-    if (!compilerVersion){
-      console.error('Compiler version is not available');
-      return;
-    }
-
-    const worker = new Worker('worker.bundle.js');
-    let compileOutput = null;
-
-    try {
-      setCompiling(true);
-      setOutput(null);
-      // Load the compiler
-      await postMessageToWorker(worker, {
-        command: 'loadCompiler',
-        version: compilerVersion
-      });
-
-      // Compile the standard input JSON
-      compileOutput = await postMessageToWorker(worker, {
-        command: 'compile',
-        input: stdInputJson
-      });
-
-      // Handle the compilation output
-      console.log('Compilation output:', compileOutput);
-      if (compileOutput?.type === 'compiled') {
-        console.log('Compilation successful:', compileOutput.output);
-        const output = compileOutput.output && JSON.stringify(JSON.parse(compileOutput.output), null, 2);
-        setOutput(output);
-        setActiveContent(output || "Missing output!");
-        setActiveLanguage("json");
-      } else {
-        console.error('Compilation error:', compileOutput?.error || "unknown error");
+    try{
+      setInternalChange(true);
+      if (!stdInputJson) {
+        console.error('Standard input JSON is not available');
+        return;
       }
-    } catch (error) {
-      // Handle any errors
-      console.error('Compilation error:', error);
-    } finally {
-      setCompiling(false);
-      // Terminate the worker when done
-      worker.terminate();
-    }
 
+      if (!compilerVersion){
+        console.error('Compiler version is not available');
+        return;
+      }
+
+      const worker = new Worker('worker.bundle.js');
+      let compileOutput = null;
+
+      try {
+        setCompiling(true);
+        setOutput(null);
+        // Load the compiler
+        await postMessageToWorker(worker, {
+          command: 'loadCompiler',
+          version: compilerVersion
+        });
+
+        // Compile the standard input JSON
+        compileOutput = await postMessageToWorker(worker, {
+          command: 'compile',
+          input: stdInputJson
+        });
+
+        // Handle the compilation output
+        console.log('Compilation output:', compileOutput);
+        if (compileOutput?.type === 'compiled') {
+          console.log('Compilation successful:', compileOutput.output);
+          const output = compileOutput.output && JSON.stringify(JSON.parse(compileOutput.output), null, 2);
+          setOutput(output);
+          setActiveContent(output || "Missing output!");
+          setActiveLanguage("json");
+        } else {
+          console.error('Compilation error:', compileOutput?.error || "unknown error");
+        }
+      } catch (error) {
+        // Handle any errors
+        console.error('Compilation error:', error);
+      } finally {
+        setCompiling(false);
+        // Terminate the worker when done
+        worker.terminate();
+      }
+    }finally{
+      setInternalChange(false);
+    }
     // const output = compileOutput && JSON.parse(compileOutput.compiled);
   }
 

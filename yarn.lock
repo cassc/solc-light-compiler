@@ -1089,14 +1089,14 @@
 
 "@monaco-editor/loader@^1.4.0":
   version "1.4.0"
-  resolved "https://registry.npmjs.org/@monaco-editor/loader/-/loader-1.4.0.tgz"
+  resolved "https://registry.yarnpkg.com/@monaco-editor/loader/-/loader-1.4.0.tgz#f08227057331ec890fa1e903912a5b711a2ad558"
   integrity sha512-00ioBig0x642hytVspPl7DbQyaSWRaolYie/UFNjoTdvoKPzo6xrXLhTk9ixgIKcLH5b5vDOjVNiGyY+uDCUlg==
   dependencies:
     state-local "^1.0.6"
 
 "@monaco-editor/react@^4.6.0":
   version "4.6.0"
-  resolved "https://registry.npmjs.org/@monaco-editor/react/-/react-4.6.0.tgz"
+  resolved "https://registry.yarnpkg.com/@monaco-editor/react/-/react-4.6.0.tgz#bcc68671e358a21c3814566b865a54b191e24119"
   integrity sha512-RFkU9/i7cN2bsq/iTkurMWOEErmYcY6JiQI3Jn+WeR/FGISH8JbHERjpS9oRuSOPvDMJI0Z8nJeKkbOs9sBYQw==
   dependencies:
     "@monaco-editor/loader" "^1.4.0"
@@ -3191,7 +3191,7 @@ react-is@^16.13.1:
 
 react-monaco-editor@^0.54.0:
   version "0.54.0"
-  resolved "https://registry.npmjs.org/react-monaco-editor/-/react-monaco-editor-0.54.0.tgz"
+  resolved "https://registry.yarnpkg.com/react-monaco-editor/-/react-monaco-editor-0.54.0.tgz#ec9293249a991b08264be723c1ec0ca3a6d480d8"
   integrity sha512-9JwO69851mfpuhYLHlKbae7omQWJ/2ICE2lbL0VHyNyZR8rCOH7440u+zAtDgiOMpLwmYdY1sEZCdRefywX6GQ==
   dependencies:
     prop-types "^15.8.1"
@@ -3460,7 +3460,7 @@ source-map-js@^1.0.2:
 
 state-local@^1.0.6:
   version "1.0.7"
-  resolved "https://registry.npmjs.org/state-local/-/state-local-1.0.7.tgz"
+  resolved "https://registry.yarnpkg.com/state-local/-/state-local-1.0.7.tgz#da50211d07f05748d53009bee46307a37db386d5"
   integrity sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==
 
 streamsearch@^1.1.0:

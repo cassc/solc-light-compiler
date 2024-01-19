@@ -1,4 +1,5 @@
 import wrapper from 'solc/wrapper';
+const _ = require('lodash');
 
 let compiler = null;
 
@@ -40,13 +41,13 @@ self.addEventListener('message', (e) => {
   // Compile standard input json
   if (data.command === 'compile') {
     const input = data.input;
-    // override settings
-    input.settings.outputSelection = {
-      '*': {
-        '*': [ '*' ]
-      }
-    };
     try {
+      // override settings
+      /* input.settings.outputSelection = {
+       *   '*': {
+       *     '*': [ '*' ]
+       *   }
+       * }; */
       // Assume 'compiler' is the loaded Solidity compiler instance
       const output = compiler.compile(JSON.stringify(input));
 
